@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpBackend } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpBackend, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError, tap } from 'rxjs';
 
 export interface Empleado {
@@ -17,14 +17,14 @@ export interface Empleado {
   providedIn: 'root'
 })
 export class EmpleadoService {
-  private apiUrl = 'https://localhost:7291/api/Empleados'; // URL del API actualizada
+  private baseUrl = 'https://localhost:7291/api/Empleados'; // URL del API actualizada
   show: boolean = true;
 
   
   constructor(private http: HttpClient) { }
 
   getEmpleados(): Observable<Empleado[]> {
-    return this.http.get<Empleado[]>(this.apiUrl).pipe(
+    return this.http.get<Empleado[]>(this.baseUrl).pipe(
       catchError(error => {
         console.error('Error GET empleados:', error);
         return throwError(() => error);
@@ -33,7 +33,7 @@ export class EmpleadoService {
   }
 
   crearEmpleado(empleado: Empleado): Observable<Empleado> {
-    return this.http.post<Empleado>(this.apiUrl, empleado).pipe(
+    return this.http.post<Empleado>(this.baseUrl, empleado).pipe(
       catchError(error => {
         console.error('Error POST empleado:', error);
         return throwError(() => error);
@@ -42,13 +42,11 @@ export class EmpleadoService {
   }
 
   eliminarEmpleado(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${Math.floor(id)}`, {
+    return this.http.delete(`${this.baseUrl}/${id}`, {
       observe: 'response'
     }).pipe(
       tap(response => {
-        if (response.status === 204) {
-          console.log('Eliminación exitosa');
-        }
+        console.log('Eliminación exitosa', response);
       }),
       catchError(error => {
         console.error('Error al eliminar:', error);
@@ -58,18 +56,16 @@ export class EmpleadoService {
   }
 
   actualizarEmpleado(id: number, cambios: any): Observable<any> {
-    // Asegurar formato correcto para el backend
-    const payload = {
-      ...cambios,
-      FechaIngreso: cambios.fechaIngreso || cambios.FechaIngreso
-    };
-
-    return this.http.patch(`${this.apiUrl}/${Math.floor(id)}`, payload, {
+    console.log('Enviando PATCH a:', `${this.baseUrl}/${id}`, 'con:', cambios);
+    return this.http.patch(`${this.baseUrl}/${id}`, cambios, {
+      headers: new HttpHeaders({'Content-Type': 'application/json'}),
       observe: 'response'
     }).pipe(
-      tap(response => console.log('Actualización exitosa')),
-      catchError(error => {
-        console.error('Error al actualizar:', error);
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error en PATCH:', error);
+        if (error.error) {
+          console.error('Detalles del error:', error.error);
+        }
         return throwError(() => error);
       })
     );

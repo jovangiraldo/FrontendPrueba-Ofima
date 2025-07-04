@@ -54,40 +54,46 @@
       </div>
       <button class="btn btn-primary btn-sm" (click)="show = !show">{{ show ? 'Ocultar' : 'Mostrar' }} Formulario</button>
       <!-- Formulario mejorado -->
-      <div *ngIf="show" class="card mt-4 shadow-sm">
+      <div *ngIf="show && !edicionMode" class="card mt-4 shadow-sm">
         <div class="card-header bg-light">
           <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i>Nuevo Empleado</h3>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="crearEmpleado()" class="row g-3 needs-validation" novalidate>
+          <form (ngSubmit)="crearEmpleado()" #createForm="ngForm" class="row g-3 needs-validation" novalidate>
             <div class="col-md-6">
               <label class="form-label">Nombre</label>
-              <input class="form-control" placeholder="Nombre" [(ngModel)]="nuevoEmpleado.nombre" name="nombre" required>
+              <input type="text" class="form-control" [(ngModel)]="nuevoEmpleado.nombre" name="nombre" required>
+              <div *ngIf="createForm.submitted && !nuevoEmpleado.nombre" class="text-danger">
+                Nombre es requerido
+              </div>
             </div>
             
             <div class="col-md-6">
               <label class="form-label">Correo</label>
-              <input class="form-control" placeholder="Correo" [(ngModel)]="nuevoEmpleado.correo" name="correo" required>
+              <input type="email" class="form-control" [(ngModel)]="nuevoEmpleado.correo" name="correo" required>
+              <div *ngIf="createForm.submitted && !nuevoEmpleado.correo" class="text-danger">
+                Correo es requerido
+              </div>
             </div>
             
             <div class="col-md-4">
               <label class="form-label">Cargo</label>
-              <input class="form-control" placeholder="Cargo" [(ngModel)]="nuevoEmpleado.cargo" name="cargo">
+              <input type="text" class="form-control" [(ngModel)]="nuevoEmpleado.cargo" name="cargo">
             </div>
             
             <div class="col-md-4">
               <label class="form-label">Departamento</label>
-              <input class="form-control" placeholder="Departamento" [(ngModel)]="nuevoEmpleado.departamento" name="departamento">
+              <input type="text" class="form-control" [(ngModel)]="nuevoEmpleado.departamento" name="departamento">
             </div>
             
             <div class="col-md-4">
               <label class="form-label">Teléfono</label>
-              <input class="form-control" placeholder="Teléfono" [(ngModel)]="nuevoEmpleado.telefono" name="telefono">
+              <input type="tel" class="form-control" [(ngModel)]="nuevoEmpleado.telefono" name="telefono">
             </div>
             
             <div class="col-md-6">
               <label class="form-label">Fecha Ingreso</label>
-              <input type="date" class="form-control" [(ngModel)]="nuevoEmpleado.fechaIngreso" name="fechaIngreso">
+              <input type="date" class="form-control" [(ngModel)]="nuevoEmpleado.fechaIngreso" name="fechaIngresoNuevo">
             </div>
             
             <div class="col-md-6 d-flex align-items-center">
@@ -98,7 +104,7 @@
             </div>
             
             <div class="col-12">
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid">
                 <i class="bi bi-plus-circle"></i> Agregar Empleado
               </button>
             </div>
@@ -114,39 +120,51 @@
           </h5>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="actualizarEmpleado()">
+          <form (ngSubmit)="actualizarEmpleado()" #editForm="ngForm">
             <div class="mb-3">
-              <label class="form-label">Nombre</label>
+              <label class="form-label">Nombre *</label>
               <input type="text" class="form-control" [(ngModel)]="empleadoEditando.nombre" name="nombre" required>
+              <div *ngIf="editForm.submitted && !empleadoEditando.nombre" class="text-danger">
+                Nombre es requerido
+              </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Correo</label>
+              <label class="form-label">Correo *</label>
               <input type="email" class="form-control" [(ngModel)]="empleadoEditando.correo" name="correo" required>
+              <div *ngIf="editForm.submitted && !empleadoEditando.correo" class="text-danger">
+                Correo es requerido
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Cargo</label>
-              <input type="text" class="form-control" [(ngModel)]="empleadoEditando.cargo" name="cargo">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cargo</label>
+                <input type="text" class="form-control" [(ngModel)]="empleadoEditando.cargo" name="cargo">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Departamento</label>
+                <input type="text" class="form-control" [(ngModel)]="empleadoEditando.departamento" name="departamento">
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Departamento</label>
-              <input type="text" class="form-control" [(ngModel)]="empleadoEditando.departamento" name="departamento">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Teléfono</label>
-              <input type="tel" class="form-control" [(ngModel)]="empleadoEditando.telefono" name="telefono">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Fecha Ingreso</label>
-              <input type="date" class="form-control" [(ngModel)]="empleadoEditando.fechaIngreso" name="fechaIngreso">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" [(ngModel)]="empleadoEditando.telefono" name="telefono">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Fecha Ingreso</label>
+                <input type="date" class="form-control" [(ngModel)]="empleadoEditando.fechaIngreso" name="fechaIngreso">
+              </div>
             </div>
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="activoCheck" [(ngModel)]="empleadoEditando.activo" name="activo">
               <label class="form-check-label" for="activoCheck">Activo</label>
             </div>
             <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-save me-1"></i>Guardar
+              <button type="button" class="btn btn-outline-secondary" (click)="cancelarEdicion()">
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">
+                <i class="bi bi-save me-1"></i>Guardar Cambios
               </button>
             </div>
           </form>

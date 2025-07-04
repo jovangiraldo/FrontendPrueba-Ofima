@@ -55,12 +55,17 @@ export class EmpleadosComponent implements OnInit, AfterViewInit {
   }
 
   crearEmpleado() {
+    // Eliminar la validación de fecha futura
     this.empleadoService.crearEmpleado(this.nuevoEmpleado).subscribe({
       next: () => {
         this.cargarEmpleados();
         this.resetFormulario();
+        alert('Empleado creado exitosamente');
       },
-      error: (err) => console.error('Error creando empleado:', err)
+      error: (err) => {
+        console.error('Error al crear empleado:', err);
+        alert('Error al crear empleado');
+      }
     });
   }
 
@@ -114,35 +119,33 @@ export class EmpleadosComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Preparar cambios
-    const cambios: any = {};
-    const empleadoOriginal = this.empleados.find(e => e.id === this.empleadoEditando?.id);
+    const payload: any = {};
+    const original = this.empleados.find(e => e.id === this.empleadoEditando?.id);
     
-    if (empleadoOriginal) {
+    if (original) {
       (Object.keys(this.empleadoEditando) as Array<keyof Empleado>).forEach(key => {
-        if (this.empleadoEditando![key] !== empleadoOriginal[key]) {
-          // Mapear al formato del backend (propiedades capitalizadas)
+        if (JSON.stringify(this.empleadoEditando![key]) !== JSON.stringify(original[key])) {
           const backendKey = key.charAt(0).toUpperCase() + key.slice(1);
-          cambios[backendKey] = this.empleadoEditando![key];
+          payload[backendKey] = key === 'fechaIngreso' && this.empleadoEditando![key]
+            ? new Date(this.empleadoEditando![key]).toISOString().split('T')[0]
+            : this.empleadoEditando![key];
         }
       });
     }
 
-    console.log('Enviando cambios:', cambios);
-    
-    if (Object.keys(cambios).length > 0) {
-      this.empleadoService.actualizarEmpleado(this.empleadoEditando.id, cambios).subscribe({
+    if (Object.keys(payload).length > 0) {
+      this.empleadoService.actualizarEmpleado(this.empleadoEditando.id, payload).subscribe({
         next: (response) => {
-          console.log('Actualización exitosa:', response);
           this.cargarEmpleados();
           this.cancelarEdicion();
+          alert('Cambios guardados exitosamente');
         },
         error: (err) => {
-          console.error('Error actualizando empleado:', err);
+          console.error('Error al actualizar:', err);
+          alert('Error al guardar cambios');
         }
       });
     } else {
-      console.log('No hay cambios para guardar');
       this.cancelarEdicion();
     }
   }
