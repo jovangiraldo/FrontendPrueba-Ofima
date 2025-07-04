@@ -1,0 +1,180 @@
+<div class="container mt-4">
+  <!-- Tarjeta contenedora -->
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">
+        <i class="bi bi-people-fill me-2"></i>Gestión de Empleados
+      </h2>
+      <button class="btn btn-light btn-sm" (click)="cargarEmpleados()">
+        <i class="bi bi-arrow-clockwise"></i> Actualizar
+      </button>
+    </div>
+    
+    <div class="card-body">
+      <!-- Tabla mejorada -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Cargo</th>
+              <th scope="col">Departamento</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col">Ingreso</th>
+              <th scope="col" class="text-center">Estado</th>
+              <th scope="col" class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let emp of empleados" class="transition-all">
+              <td class="fw-semibold">{{ emp.nombre }}</td>
+              <td><a href="mailto:{{emp.correo}}" class="text-decoration-none">{{ emp.correo }}</a></td>
+              <td>{{ emp.cargo }}</td>
+              <td>{{ emp.departamento }}</td>
+              <td>{{ emp.telefono }}</td>
+              <td>{{ emp.fechaIngreso | date:'dd/MM/yyyy' }}</td>
+              <td class="text-center">
+                <span class="badge rounded-pill py-2 px-3" 
+                      [ngClass]="{'bg-success': emp.activo, 'bg-secondary': !emp.activo}">
+                  {{ emp.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="text-end">
+                <button (click)="confirmarEliminacion(emp)" class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash"></i> Eliminar
+                </button>
+                <button (click)="iniciarEdicion(emp)" class="btn btn-primary btn-sm">
+                  <i class="bi bi-pencil-square"></i> Editar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-primary btn-sm" (click)="show = !show">{{ show ? 'Ocultar' : 'Mostrar' }} Formulario</button>
+      <!-- Formulario mejorado -->
+      <div *ngIf="show" class="card mt-4 shadow-sm">
+        <div class="card-header bg-light">
+          <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i>Nuevo Empleado</h3>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="crearEmpleado()" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-6">
+              <label class="form-label">Nombre</label>
+              <input class="form-control" placeholder="Nombre" [(ngModel)]="nuevoEmpleado.nombre" name="nombre" required>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Correo</label>
+              <input class="form-control" placeholder="Correo" [(ngModel)]="nuevoEmpleado.correo" name="correo" required>
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Cargo</label>
+              <input class="form-control" placeholder="Cargo" [(ngModel)]="nuevoEmpleado.cargo" name="cargo">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Departamento</label>
+              <input class="form-control" placeholder="Departamento" [(ngModel)]="nuevoEmpleado.departamento" name="departamento">
+            </div>
+            
+            <div class="col-md-4">
+              <label class="form-label">Teléfono</label>
+              <input class="form-control" placeholder="Teléfono" [(ngModel)]="nuevoEmpleado.telefono" name="telefono">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Fecha Ingreso</label>
+              <input type="date" class="form-control" [(ngModel)]="nuevoEmpleado.fechaIngreso" name="fechaIngreso">
+            </div>
+            
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="activoSwitch" [(ngModel)]="nuevoEmpleado.activo" name="activo">
+                <label class="form-check-label" for="activoSwitch">Activo</label>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Agregar Empleado
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Formulario de edición -->
+      <div *ngIf="edicionMode && empleadoEditando" class="card mt-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-pencil-square me-2"></i>Editando: {{empleadoEditando.nombre}}
+          </h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="actualizarEmpleado()">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" [(ngModel)]="empleadoEditando.nombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-control" [(ngModel)]="empleadoEditando.correo" name="correo" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Cargo</label>
+              <input type="text" class="form-control" [(ngModel)]="empleadoEditando.cargo" name="cargo">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Departamento</label>
+              <input type="text" class="form-control" [(ngModel)]="empleadoEditando.departamento" name="departamento">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="tel" class="form-control" [(ngModel)]="empleadoEditando.telefono" name="telefono">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Fecha Ingreso</label>
+              <input type="date" class="form-control" [(ngModel)]="empleadoEditando.fechaIngreso" name="fechaIngreso">
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="activoCheck" [(ngModel)]="empleadoEditando.activo" name="activo">
+              <label class="form-check-label" for="activoCheck">Activo</label>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmModalLabel">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Eliminación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de eliminar a {{empleadoSeleccionado?.nombre}}?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" (click)="eliminarEmpleadoConfirmado()">
+          <i class="bi bi-trash-fill me-1"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
